@@ -1,6 +1,7 @@
 vault.dat
 vault.salt
 __pycache__/
+.DS_Store
 *.pyc
 *.pyd
 *.pyo
