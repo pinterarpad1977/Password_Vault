@@ -1,9 +1,16 @@
+'''
+This now needs to be run as a module of a package, use this syntax:
+python -m src.projects.password_vault.cli_shell
+
+This is due to the API implementation and relative imports '''
+
+
 from getpass import getpass
 
-from storage import load_salt, load_vault, save_vault
-from crypto import derive_key
-from vault import VaultManager
-from config import SALT_FILE, VAULT_FILE
+from .storage import load_salt, load_vault, save_vault
+from .crypto import derive_key
+from .vault import VaultManager
+from .config import SALT_FILE, VAULT_FILE
 
 
 def interactive_shell(mgr, key):
@@ -23,6 +30,7 @@ Commands:
   list                                             List all entries
   search <query>                                   Search entries (shows passwords)
   remove <service>                                 Remove an entry
+  save                                             Saves the vault
   exit                                             Quit the shell
 """)
             continue
@@ -85,6 +93,10 @@ Commands:
                     print("Entry removed.")
                 else:
                     print("No such entry.")
+
+            elif command == "save":
+                save_vault(VAULT_FILE, mgr.vault, key)
+                print("Vault saved.")
 
             else:
                 print("Unknown command. Type 'help'.")

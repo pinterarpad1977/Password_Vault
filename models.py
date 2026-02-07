@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+import uuid
+
 
 @dataclass
 class VaultEntry:
@@ -7,6 +9,7 @@ class VaultEntry:
     username: str
     password: str
     notes: str | None = None
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
 @dataclass
 class VaultMetadata:

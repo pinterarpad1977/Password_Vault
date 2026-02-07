@@ -15,9 +15,10 @@ It’s a pure persistence layer.'''
 import os
 import json
 from dataclasses import asdict
-from models import Vault, VaultMetadata, VaultEntry
-from crypto import generate_salt, decrypt, encrypt
-from config import SALT_FILE, VAULT_FILE
+import uuid
+from .models import Vault, VaultMetadata, VaultEntry
+from .crypto import generate_salt, decrypt, encrypt
+from .config import SALT_FILE, VAULT_FILE
 
 def load_salt(path: str) -> bytes:
     if os.path.exists(path):
@@ -42,6 +43,7 @@ def load_vault(path: str, key: bytes) -> Vault:
         # rebuild entries
         entries = [
             VaultEntry(
+                id=e.get("id", str(uuid.uuid4())),
                 service = e["service"], 
                 username = e["username"], 
                 password = e["password"], 
