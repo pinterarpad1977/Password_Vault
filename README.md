@@ -1,120 +1,98 @@
-# 🔐 Password Vault — v1.1
+# Password Vault — v2.0
 
-A lightweight, fully local, encrypted password vault written in Python.  
-All data is encrypted using **Fernet (AES‑128)** with a key derived from your **master password** using **PBKDF2‑HMAC‑SHA256**.
+A small, local password vault with encryption.
+Everything runs on your machine.
+No cloud, no tracking, no external services.
 
-No cloud.  
-No telemetry.  
-Your passwords stay on your machine.
+This version adds a backend API and a simple browser-based frontend on top of the original CLI tools.
 
----
+## Features 
 
-## 🚀 Features
+- Local encrypted vault (vault.dat)
+- Salted key derivation (vault.salt)
+- FastAPI backend with CRUD endpoints
+- Simple frontend UI (HTML + JS)
+- Search, add, edit, delete entries
+- One-shot CLI
+- Interactive shell
 
-- Secure encryption using Fernet  
-- Salted key derivation (PBKDF2)  
-- Encrypted vault storage (`vault.dat`)  
-- Automatic salt handling (`vault.salt`)  
-- Add, list, search, and remove entries  
-- Notes support  
-- One‑shot CLI (`cli.py`)  
-- Interactive shell (`cli_shell.py`)  
-- Clean modular architecture
+## Running the Backend (API)
 
----
+From the project root:
 
-## 📦 Installation
+uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
 
-```bash
-pip install cryptography
-```
+API docs:
 
----
+http://localhost:8000/docs
 
-## 🖥️ One‑Shot CLI Usage (v1.0)
+## Running the Frontend (UI)
 
-Run commands directly:
+From the frontend folder:
 
-```bash
-python cli.py add <service> <username> <password> [notes...]
-python cli.py list
-python cli.py search <query>
-python cli.py remove <service>
-```
+python3 -m http.server 5500
 
-You will be prompted for your **master password** each time.
+Open in your browser:
 
----
+http://localhost:5500
 
-## 🖥️ Interactive Shell (v1.1)
+Enter your master password and press Load.
 
-Start the shell:
+## CLI (v1.x)
 
-```bash
-python cli_shell.py
-```
+One-shot commands:
 
-You will see:
+python backend/cli.py add <service> <username> <password> [notes]
+python backend/cli.py list
+python backend/cli.py search <query>
+python backend/cli.py remove <service>
 
-```
-Password Vault Shell
-Master password:
-Vault shell started. Type 'help' for commands, 'exit' to quit.
-vault>
-```
+Interactive shell:
 
-### Shell Commands
+python backend/cli_shell.py
 
-```
-add <service> <username> <password> [notes...]
-list
-search <query>
-remove <service>
-help
-exit
-```
+## Project Structure
 
----
-
-## 🧱 Project Structure
-
-```
-pwd_vault/
+password_vault/
 │
-├── cli.py            # One-shot CLI
-├── cli_shell.py      # Interactive shell (v1.1)
-├── crypto.py         # Encryption / decryption
-├── storage.py        # File I/O
-├── vault.py          # Business logic
-├── models.py         # Dataclasses
-├── config.py         # File paths
-└── README.md         # Documentation
-```
+├── backend/
+│   ├── api.py
+│   ├── crypto.py
+│   ├── storage.py
+│   ├── vault.py
+│   ├── models.py
+│   ├── config.py
+│   ├── cli.py
+│   └── cli_shell.py
+│
+├── frontend/
+│   └── index.html
+│
+├── data/          (vault files, ignored in git)
+│   ├── vault.dat
+│   └── vault.salt
+│
+├── requirements.txt
+├── .gitignore
+└── README.md
 
----
+## Version History
 
-## 🏷️ Version History
+v2.0
+- Added FastAPI backend
+- Added browser frontend
+- Added full CRUD support
+- New project structure
 
-### **v1.1 — Interactive Shell**
-- Added persistent shell mode (`cli_shell.py`)
-- No repeated password prompts
-- Built‑in help command
-- Unified syntax with one‑shot CLI
+v1.1
+- Added interactive shell
 
-### **v1.0 — One‑Shot CLI**
-- Initial release
-- Add/list/search/remove commands
-- Encrypted vault storage
-- PBKDF2 key derivation
-- Notes support
+v1.0
+- Initial CLI version
 
----
+## Security Notes
 
-## 🛡️ Security Notes
-
-- Your master password is **never stored**  
-- Losing your master password makes the vault unrecoverable  
-- Losing `vault.salt` also makes the vault unrecoverable  
-- Everything stays local on your machine  
-
----
+- The master password is never stored
+- Losing the master password means losing access
+- Losing the salt file also makes the vault unrecoverable
+- Everything stays local
