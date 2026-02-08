@@ -1,6 +1,21 @@
-vault.dat
-vault.salt
+# Python cache
 __pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+env/
+
+# Vault data (never commit secrets)
+data/vault.salt
+data/vault.dat
+
+# VS Code
+.vscode/
+
+# Dev container metadata
+.devcontainer/
+
 .DS_Store
 *.pyc
 *.pyd

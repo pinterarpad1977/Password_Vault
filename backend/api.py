@@ -1,17 +1,27 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # “I’m importing the persistence layer, the crypto layer, 
 # the config paths, and the manager that handles vault logic.”
 
-from src.projects.password_vault.storage import load_salt, load_vault
-from src.projects.password_vault.crypto import derive_key
-from src.projects.password_vault.config import SALT_FILE, VAULT_FILE
-from src.projects.password_vault.vault import VaultManager
+from backend.storage import load_salt, load_vault
+from backend.crypto import derive_key
+from backend.config import SALT_FILE, VAULT_FILE
+from backend.vault import VaultManager
 
 # create the fastapi app
 # the app object is my API, the endpoints will attach to it
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["*"], # allow all origins for now
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
+
+)
 
 # when a get request is sent to /health, FastAPI will call
 # health_check() and the the dict will be returned as JSON.
@@ -20,7 +30,7 @@ def health_check():
     return {"status": "ok"}
 
 # terminal call:
-# uvicorn src.projects.password_vault.api:app --reload --host 0.0.0.0 --port 8000
+# uvicorn src.projects.password_vault.backend.api:app --reload --host 0.0.0.0 --port 8000
 
 # helper function to access the vault:
 def get_vault_manager(master_password: str) -> tuple[VaultManager, bytes]:
@@ -38,9 +48,19 @@ def get_vault_manager(master_password: str) -> tuple[VaultManager, bytes]:
     return manager, key
 
 @app.get("/entries")
-def get_entries(password: str):
+def get_entries(password: str, q: str | None = None):
     manager, key = get_vault_manager(password)
     entries = manager.list_entries()
+
+    if q:
+        q_lower = q.lower()
+        entries = [
+            e for e in entries
+            if q_lower in e.service.lower()
+            or q_lower in e.username.lower()
+            or (e.notes and q_lower in e.notes.lower())
+        ]
+
     return [entry.__dict__ for entry in entries]
 
 
@@ -65,7 +85,7 @@ def delete_entry(entry_id: str, password: str):
             raise HTTPException(status_code=404, detail="Entry not found.")
         
         # save the updated vault
-        from src.projects.password_vault.storage import save_vault
+        from backend.storage import save_vault
         save_vault(VAULT_FILE, manager.vault, key)
 
         return {"status": "deleted", "id": entry_id}
@@ -93,7 +113,7 @@ def create_entry(data: EntryCreate, password: str):
     )
 
     # save the vault
-    from src.projects.password_vault.storage import save_vault
+    from backend.storage import save_vault
     save_vault(VAULT_FILE, manager.vault, key)
 
     # return the last entry
@@ -123,7 +143,7 @@ def update_entry(entry_id: str, data: EntryUpdate, password: str):
     if updated is None:
         raise HTTPException(status_code=404, detail="Entry not found.")
     
-    from src.projects.password_vault.storage import save_vault
+    from backend.storage import save_vault
     save_vault(VAULT_FILE, manager.vault, key)
 
     return updated.__dict__
@@ -131,5 +151,12 @@ def update_entry(entry_id: str, data: EntryUpdate, password: str):
 # use this request in the browser:
 # http://localhost:8000/entries?password=YOUR_MASTER_PASSWORD
 
-
+'''
+uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
+• uvicorn → the ASGI server
+• backend.api:app → path to your FastAPI app object
+• –reload → auto‑reload on file changes
+• –host 0.0.0.0 → listen on all interfaces (needed in containers)
+• –port 8000 → your chosen port
+'''
 

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Password Vault</title>
+
+    <!-- ===== BASIC PAGE STYLING ===== -->
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 20px;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px;
+        }
+        .entry {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ========================================================= -->
+    <!--                     PAGE HEADER                          -->
+    <!-- ========================================================= -->
+    <h1>Password Vault</h1>
+
+    <!-- Master password + search bar + load button -->
+    <div>
+        <input id="password" type="password" placeholder="Master password">
+        <input id="search" type="text" placeholder="Search ...">
+        <button onclick="loadEntries()">Load</button>
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!--                     ADD NEW ENTRY                         -->
+    <!-- ========================================================= -->
+    <h2>Add New Entry</h2>
+    <div>
+        <input id="new-service" type="text" placeholder="Service">
+        <input id="new-username" type="text" placeholder="Username">
+        <input id="new-password" type="text" placeholder="Password">
+        <input id="new-notes" type="text" placeholder="Notes (optional)">
+        <button onclick="addEntry()">Add</button>
+    </div>
+
+
+    <!-- ========================================================= -->
+    <!--                     ENTRY LIST AREA                       -->
+    <!-- ========================================================= -->
+    <div id="entries"></div>
+
+
+    <!-- ========================================================= -->
+    <!--                     LOAD ENTRIES (READ)                   -->
+    <!-- ========================================================= -->
+    <script>
+        async function loadEntries() {
+            const master = document.getElementById("password").value;
+            const query = document.getElementById("search").value;
+
+            // Build URL depending on whether search is used
+            const url = query
+                ? `http://localhost:8000/entries?password=${encodeURIComponent(master)}&q=${encodeURIComponent(query)}`
+                : `http://localhost:8000/entries?password=${encodeURIComponent(master)}`;
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            const container = document.getElementById("entries");
+            container.innerHTML = ""; // Clear old entries
+
+            // Render each entry
+            data.forEach(entry => {
+                const div = document.createElement("div");
+                div.className = "entry";
+
+                div.innerHTML = `
+                    <strong>${entry.service}</strong><br>
+                    Username: <span>${entry.username}</span><br>
+                    Password: <span>${entry.password}</span><br>
+                    Notes: <span>${entry.notes || ""}</span><br>
+
+                    <!-- Delete and Edit buttons -->
+                    <button onclick="deleteEntry('${entry.id}')">Delete</button>
+                    <button onclick="startEdit('${entry.id}', '${entry.service}', '${entry.username}', '${entry.password}', '${entry.notes || ""}', this)">Edit</button>
+                `;
+
+                container.appendChild(div);
+            });
+        }
+    </script>
+
+
+    <!-- ========================================================= -->
+    <!--                     DELETE ENTRY                          -->
+    <!-- ========================================================= -->
+    <script>
+        async function deleteEntry(id) {
+            const master = document.getElementById("password").value;
+
+            await fetch(`http://localhost:8000/entries/${id}?password=${encodeURIComponent(master)}`, {
+                method: "DELETE"
+            });
+
+            loadEntries(); // Refresh list
+        }
+    </script>
+
+
+    <!-- ========================================================= -->
+    <!--                     ADD ENTRY (CREATE)                    -->
+    <!-- ========================================================= -->
+    <script>
+        async function addEntry() {
+            const master = document.getElementById("password").value;
+
+            const body = {
+                service: document.getElementById("new-service").value,
+                username: document.getElementById("new-username").value,
+                password: document.getElementById("new-password").value,
+                notes: document.getElementById("new-notes").value
+            };
+
+            await fetch(`http://localhost:8000/entries?password=${encodeURIComponent(master)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            // Clear form fields
+            document.getElementById("new-service").value = "";
+            document.getElementById("new-username").value = "";
+            document.getElementById("new-password").value = "";
+            document.getElementById("new-notes").value = "";
+
+            loadEntries(); // Refresh list
+        }
+    </script>
+
+
+    <!-- ========================================================= -->
+    <!--                     EDIT ENTRY (INLINE)                   -->
+    <!-- ========================================================= -->
+    <script>
+        let currentEditForm = null; // Tracks the currently open edit form
+
+        function startEdit(id, service, username, password, notes, buttonElement) {
+
+            // Remove any existing edit form
+            if (currentEditForm) {
+                currentEditForm.remove();
+                currentEditForm = null;
+            }
+
+            // Create a new inline edit form
+            const form = document.createElement("div");
+            form.style.border = "1px solid #ccc";
+            form.style.padding = "10px";
+            form.style.margin = "10px 0";
+            form.style.background = "#f9f9f9";
+
+            form.innerHTML = `
+                <input id="edit-service" type="text" value="${service}">
+                <input id="edit-username" type="text" value="${username}">
+                <input id="edit-password" type="text" value="${password}">
+                <input id="edit-notes" type="text" value="${notes}">
+                <button onclick="saveEdit('${id}')">Save</button>
+                <button onclick="cancelEdit()">Cancel</button>
+            `;
+
+            // Insert the form directly under the entry being edited
+            const entryDiv = buttonElement.parentElement;
+            entryDiv.insertAdjacentElement("afterend", form);
+
+            currentEditForm = form;
+        }
+    </script>
+
+
+    <!-- ========================================================= -->
+    <!--                     SAVE EDIT (UPDATE)                    -->
+    <!-- ========================================================= -->
+    <script>
+        async function saveEdit(id) {
+            const master = document.getElementById("password").value;
+
+            const body = {
+                service: document.getElementById("edit-service").value,
+                username: document.getElementById("edit-username").value,
+                password: document.getElementById("edit-password").value,
+                notes: document.getElementById("edit-notes").value
+            };
+
+            await fetch(`http://localhost:8000/entries/${id}?password=${encodeURIComponent(master)}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            currentEditForm.remove();
+            currentEditForm = null;
+
+            loadEntries(); // Refresh list
+        }
+    </script>
+
+
+    <!-- ========================================================= -->
+    <!--                     CANCEL EDIT                           -->
+    <!-- ========================================================= -->
+    <script>
+        function cancelEdit() {
+            if (currentEditForm) {
+                currentEditForm.remove();
+                currentEditForm = null;
+            }
+        }
+    </script>
+
+</body>
+</html>

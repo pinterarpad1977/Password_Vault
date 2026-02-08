@@ -1,6 +1,6 @@
 '''
 This now needs to be run as a module of a package, use this syntax:
-python -m src.projects.password_vault.cli_shell
+python -m backend.cli_shell
 
 This is due to the API implementation and relative imports '''
 
