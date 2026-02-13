@@ -30,7 +30,7 @@ def health_check():
     return {"status": "ok"}
 
 # terminal call:
-# uvicorn src.projects.password_vault.backend.api:app --reload --host 0.0.0.0 --port 8000
+# uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
 
 # helper function to access the vault:
 def get_vault_manager(master_password: str) -> tuple[VaultManager, bytes]:
