@@ -1,74 +1,69 @@
-# Password Vault — v2.0
 
-A small, local password vault with encryption.
-Everything runs on your machine.
-No cloud, no tracking, no external services.
+Password Vault — v3.0
+A fully local, encrypted password vault with a FastAPI backend and a modern browser-based frontend. Everything runs on your machine — no cloud, no telemetry, no external services.
+This version replaces the old prototype UI with a complete, functional frontend featuring dark mode, safe rendering, edit/delete, and a clean API integration.
 
-This version adds a backend API and a simple browser-based frontend on top of the original CLI tools.
+Features
+🔐 Security
+Local encrypted vault (vault.dat)
+Salted key derivation (vault.salt)
+Master password never stored or transmitted
+Everything stays on your machine
 
-## Features 
+🖥️ Frontend (v3.0)
+Modern HTML/JS UI
+Load, add, edit, delete entries
+Mask/unmask passwords
+Dark mode toggle
+Safe HTML escaping
+Unified event delegation (single listener for edit/delete)
+Smooth edit mode with cancel + success message
 
-- Local encrypted vault (vault.dat)
-- Salted key derivation (vault.salt)
-- FastAPI backend with CRUD endpoints
-- Simple frontend UI (HTML + JS)
-- Search, add, edit, delete entries
-- One-shot CLI
-- Interactive shell
+🧩 Backend (FastAPI)
+Full CRUD API
+Password-protected endpoints
+Automatic validation
+Interactive API docs at /docs
 
-## Running the Backend (API)
-
+🛠️ CLI Tools (Legacy)
+One-shot commands
+Interactive shell
+Fully compatible with the vault format
+Running the Backend (API)
 From the project root:
-
 uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
 
 API docs:
-
 http://localhost:8000/docs
 
-## Running the Frontend (UI)
-
+Running the Frontend (UI)
 From the frontend folder:
-
 python3 -m http.server 5500
 
 Open in your browser:
-
 http://localhost:5500
 
-Enter your master password and press Load.
-
-## CLI (v1.x)
-
-One-shot commands:
-
-python backend/cli.py add <service> <username> <password> [notes]
-python backend/cli.py list
-python backend/cli.py search <query>
-python backend/cli.py remove <service>
-
-Interactive shell:
-
-python backend/cli_shell.py
-
-## Project Structure
-
+Enter your master password to unlock the vault.
+Project Structure
 password_vault/
 │
 ├── backend/
-│   ├── api.py
-│   ├── crypto.py
-│   ├── storage.py
-│   ├── vault.py
-│   ├── models.py
+│   ├── api.py          # FastAPI routes
+│   ├── crypto.py       # Encryption / decryption
+│   ├── storage.py      # File I/O
+│   ├── vault.py        # Vault logic
+│   ├── models.py       # Pydantic models
 │   ├── config.py
-│   ├── cli.py
-│   └── cli_shell.py
+│   ├── cli.py          # Legacy CLI
+│   └── cli_shell.py    # Legacy interactive shell
 │
 ├── frontend/
-│   └── index.html
+│   ├── index.html      # New UI (v3.0)
+│   ├── index_old.html  # Archived legacy UI
+│   ├── script.js
+│   └── styles.css
 │
-├── data/          (vault files, ignored in git)
+├── data/               # Vault files (ignored in git)
 │   ├── vault.dat
 │   └── vault.salt
 │
@@ -76,23 +71,28 @@ password_vault/
 ├── .gitignore
 └── README.md
 
-## Version History
+Version History
+
+v3.0 (Current)
+Complete frontend rewrite
+Unified event listener for edit/delete
+Dark mode with persistent UI state
+Safe HTML escaping
+Improved render logic
+Stability and bug fixes
 
 v2.0
-- Added FastAPI backend
-- Added browser frontend
-- Added full CRUD support
-- New project structure
+Added FastAPI backend
+Added first browser UI
+Full CRUD support
 
 v1.1
-- Added interactive shell
+Added interactive CLI shell
 
 v1.0
-- Initial CLI version
-
-## Security Notes
-
-- The master password is never stored
-- Losing the master password means losing access
-- Losing the salt file also makes the vault unrecoverable
-- Everything stays local
+Initial CLI-only version
+Security Notes
+The master password is never stored or logged
+Losing the master password means losing access to the vault
+Losing the salt file (vault.salt) makes the vault unrecoverable
+All data stays local — no external services involved
