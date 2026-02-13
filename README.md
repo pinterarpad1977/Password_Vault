@@ -55,7 +55,7 @@ http://localhost:8000/docs
 ---
 Running the Frontend (UI)
 From the frontend folder:
-```python
+```bash
 python3 -m http.server 5500
 ```
 
@@ -63,7 +63,10 @@ Open in your browser:
 http://localhost:5500
 
 Enter your master password to unlock the vault.
+
 ---
+
+```
 Project Structure
 password_vault/
 │
@@ -90,6 +93,7 @@ password_vault/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
 
 ---
 Version History
