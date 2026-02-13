@@ -47,6 +47,7 @@ From the project root:
 
 ```bash
 uvicorn backend.api:app --reload --host 0.0.0.0 --port 8000
+```
 
 API docs:
 http://localhost:8000/docs
@@ -54,7 +55,9 @@ http://localhost:8000/docs
 ---
 Running the Frontend (UI)
 From the frontend folder:
+```python
 python3 -m http.server 5500
+```
 
 Open in your browser:
 http://localhost:5500
@@ -90,6 +93,7 @@ password_vault/
 
 ---
 Version History
+
 v3.0 (Current)
 Complete frontend rewrite
 Unified event listener for edit/delete
@@ -97,12 +101,15 @@ Dark mode with persistent UI state
 Safe HTML escaping
 Improved render logic
 Stability and bug fixes
+
 v2.0
 Added FastAPI backend
 Added first browser UI
 Full CRUD support
+
 v1.1
 Added interactive CLI shell
+
 v1.0
 Initial CLI-only version
 ---
