@@ -96,29 +96,31 @@ password_vault/
 ```
 
 ---
-Version History
+### Version History
 
-v3.0 (Current)
-Complete frontend rewrite
-Unified event listener for edit/delete
-Dark mode with persistent UI state
-Safe HTML escaping
-Improved render logic
-Stability and bug fixes
+**v3.0 (Current)**
+- Complete frontend rewrite
+- Unified event listener for edit/delete
+- Dark mode with persistent UI state
+- Safe HTML escaping
+- Improved render logic
+- Stability and bug fixes
 
-v2.0
-Added FastAPI backend
-Added first browser UI
-Full CRUD support
+**v2.0**
+- Added FastAPI backend
+- Added first browser UI
+- Full CRUD support
 
-v1.1
-Added interactive CLI shell
+**v1.1**
+- Added interactive CLI shell
 
-v1.0
-Initial CLI-only version
+**v1.0**
+- Initial CLI-only version
+
 ---
+
 Security Notes
-The master password is never stored or logged
-Losing the master password means losing access to the vault
-Losing the salt file (vault.salt) makes the vault unrecoverable
-All data stays local — no external services involved
+- The master password is never stored or logged
+- Losing the master password means losing access to the vault
+- Losing the salt file (vault.salt) makes the vault unrecoverable
+- All data stays local — no external services involved
